@@ -1,0 +1,44 @@
+---
+- hosts: servers
+  vars_files:
+    - vars.yml
+  tasks:
+  - name: Install required system packages
+    apt: pkg={{ item }} update_cache=yes
+    with_items: "{{ system_packages }}"
+
+  - name: ensure respository is a known host in root
+    lineinfile:
+      dest: "/root/.ssh/known_hosts"
+      create: yes
+      state: present
+      line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+
+  - name: cloning bill submission problem status microservice
+    git: repo=ssh://git@github.com:zacharyjdavy/test.git
+         version={{ branch }}
+         dest={{ project_root }}
+         accept_hostkey=yes
+
+  - name: ensure virtualenv is installed and latest version
+    pip: name=virtualenv
+         state=latest
+
+  - name: ensure requirements are installed into a virtualenv
+    pip: requirements={{ project_root }}/bill-submission-problem-status/requirements.txt
+         virtualenv={{ project_root }}/venv
+
+  - name: create log file
+    file: path={{ project_root }}/logs/bill-submission-problem-status.log
+          owner=root
+          state=touch
+          mode=0777
+
+  - name: Drop Config for supervisord into the conf.d directory
+    template: src=conf/bill-submission-problem-status.j2
+              dest=/etc/supervisor/conf.d/bill-submission-problem-status.conf
+    notify: reread supervisord
+
+  handlers:
+  - name: reread supervisord
+    shell: /usr/bin/supervisorctl reread && /usr/bin/supervisorctl update

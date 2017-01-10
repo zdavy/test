@@ -1,0 +1,8 @@
+.project
+*.pyc
+*.swp
+ansible/*.retry
+.vagrant/
+logs/*
+
+!.log

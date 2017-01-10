@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+Vagrant.configure(2) do |config|
+  config.vm.network :forwarded_port, guest: 22, host: 2223, id: 'ssh'
+
+  config.vm.provision :shell do |shell|
+    shell.inline = "touch $1 && chmod 0440 $1 && echo $2 > $1"
+    shell.args = %q{/etc/sudoers.d/root_ssh_agent "Defaults env_keep += \"SSH_AUTH_SOCK\""}
+  end
+
+  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "deployment.yml"
+    ansible.inventory_path = "./hosts"
+    ansible.limit = 'local'
+    ansible.sudo = true
+  end
+
+  config.ssh.forward_agent = true
+end
+

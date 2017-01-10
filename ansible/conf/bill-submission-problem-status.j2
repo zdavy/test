@@ -1,0 +1,6 @@
+[program:bill-submission-problem-status_script]
+command={{ project_root }}/venv/bin/uwsgi --ini {{ project_root }}/wsgi.ini --wsgi-file {{ project_root }}/app.py --env SURVEY_ENV={{ env }}
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/supervisor/bill-submission-problem-status.err.log
+stdout_logfile=/var/log/supervisor/bill-submission-problem-status.out.log

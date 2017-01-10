@@ -1,0 +1,9 @@
+---
+project_root: /opt/bill-submission-problem-status
+system_packages:
+  - git
+  - python-pip
+  - python-dev
+  - supervisor
+python_packages:
+  - virtualenv
