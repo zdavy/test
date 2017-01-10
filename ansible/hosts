@@ -1,0 +1,5 @@
+[servers:children]
+local
+
+[local]
+127.0.0.1 ansible_ssh_user=vagrant ansible_ssh_port=2223 env=dev branch=develop
